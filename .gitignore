@@ -1,0 +1,20 @@
+# Environment variables
+.env
+
+# Node modules
+node_modules/
+
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Optional: OS files
+.DS_Store
+Thumbs.db
+
+# Optional: IDE files
+.vscode/
+.idea/
+# Fichiers temporaires / lourds
+*.pdf
