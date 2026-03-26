@@ -8,7 +8,6 @@ const userSkillSchema = new mongoose.Schema({
     source: { type: String, enum: ['self-reported', 'verified', 'match-completion'], default: 'self-reported' }
 });
 
-// Prevent duplicate skill for same user
 userSkillSchema.index({ userId: 1, skillId: 1 }, { unique: true });
 
 module.exports = mongoose.model('UserSkill', userSkillSchema);
