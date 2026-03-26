@@ -13,8 +13,8 @@ const SkillSchema = new mongoose.Schema({
   },
   category: {
     type: String,
-    required: true,
-    trim: true
+    trim: true,
+    default: 'General',
   }
 }, {
   timestamps: true

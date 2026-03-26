@@ -22,13 +22,18 @@ const UserSchema = new mongoose.Schema({
     enum: ['student', 'school'],
     default: 'student'
   },
+  profile: {
+    avatar: { type: String, default: '' },
+    bio: { type: String, default: '' },
+  },
   points: {
     type: Number,
     default: 0
   },
   verified: {
     type: Boolean,
-    default: false },
+    default: false
+  },
   verificationToken: { type: String },
   tokenExpires: { type: Date }
 }, {

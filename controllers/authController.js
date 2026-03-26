@@ -156,6 +156,5 @@ exports.loginUser = async (req, res) => {
   }
 };
 
-//   TODO: Email verification – Send a confirmation link after registration. (DONE)
 // TODO: Password reset – "Forgot password" functionality.
 // TODO: Logout – Invalidate tokens or clear sessions.
