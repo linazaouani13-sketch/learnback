@@ -42,7 +42,7 @@ exports.putprofile = async (req, res) => {
             }));
             return res.status(400).json({ success: false, errors });
         }
-        
+
         if (value.name) {
             user.name = value.name;
         }
@@ -65,6 +65,24 @@ exports.putprofile = async (req, res) => {
             success: true,
             data: updatedUser
         });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error' });
+    }
+}
+//  GET /API/USERS/POINTS
+    exports.getpoints = async (req, res) => {
+    try {
+        if (!req.user || !req.user.id) {
+            return res.status(401).json({ message: "Unauthorized" })
+        }
+        const user = await User.findById(req.user.id).select('points')
+        if (!user) {
+            return res.status(404).json({ message: "user not found" })
+        }
+        res.status(200).json({ success: true, data: { points: user.points }})
+
 
     } catch (error) {
         console.error(error);
