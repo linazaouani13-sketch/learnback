@@ -4,7 +4,7 @@ const createSkillSchema = require('../validations/creatskillvalidator');
 const Skill = require('../models/skill');
 
 
-// POST /api/Skills/create
+// POST /api/Skills/create (by admin)
  exports.createSkill = async (req, res) => {
     try {
     if (req.user.role !== 'admin') {
@@ -40,7 +40,7 @@ const Skill = require('../models/skill');
 }
 
 
-//GET/api/Skills/listSill
+//GET/api/Skills/list 
 exports.listSkill = async (req, res) => {
     try{
           if (!req.user|| !req.user.id) {
@@ -51,5 +51,8 @@ exports.listSkill = async (req, res) => {
      } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Server error' });
-    }
+    }  
 }
+
+
+
