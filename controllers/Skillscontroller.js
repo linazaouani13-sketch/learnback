@@ -8,16 +8,16 @@ const Skill = require('../models/skill');
  exports.createSkill = async (req, res) => {
     try {
     if (req.user.role !== 'admin') {
-            return res.status(401).json({ message: "Access denied only admin is allowed " })
+            return res.status(403).json({ success: false, error: "Access denied. Only admin is allowed." })
         }
         const { error, value } = createSkillSchema.validate(req.body);
-                if (error) {
-                    const errors = error.details.map(err => ({
-                        field: err.path.join('.'),
-                        message: err.message
-                    }));
-                    return res.status(400).json({ success: false, errors });
-                }
+        if (error) {
+            const errors = error.details.map(err => ({
+                field: err.path.join('.'),
+                message: err.message
+            }));
+            return res.status(400).json({ success: false, error: errors });
+        }
         const {name,description,category}=value;
 
   const existingSkill = await Skill.findOne({ name: { $regex: new RegExp(`^${name}$`, 'i') } });
@@ -35,22 +35,22 @@ const Skill = require('../models/skill');
 
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({  success: false, error: 'Server error' });
     }
 }
 
 
 //GET/api/Skills/list 
 exports.listSkill = async (req, res) => {
-    try{
-          if (!req.user|| !req.user.id) {
-            return res.status(401).json({ message: "Unauthorized" })
+    try {
+        if (!req.user || !req.user.id) {
+            return res.status(401).json({ success: false, error: "Unauthorized" })
         }
         const skills =await Skill.find() 
         res.status(200).json({success:true,data:skills})
      } catch (error) {
         console.error(error);
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({  success: false, error: 'Server error' });
     }  
 }
 

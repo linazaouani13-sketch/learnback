@@ -13,19 +13,19 @@ const adduserskillSchema = require('../validations/addskillvalidator');
 exports.getprofile = async (req, res) => {
     try {
         if (!req.user || !req.user.id) {
-            return res.status(401).json({ message: "Unauthorized" })
+            return res.status(401).json({ success: false, error: "Unauthorized" })
         }
 
         const user = await User.findById(req.user.id).select('-passwordHash')
         if (!user) {
-            return res.status(404).json({ message: "user not found" })
+            return res.status(404).json({  success: false, error: "user not found" })
         }
-        res.status(200).json(user)
+        res.status(200).json({ success: true, data: user });
 
 
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({  success: false, error: 'Server error' });
     }
 
 }
@@ -34,12 +34,12 @@ exports.getprofile = async (req, res) => {
 exports.putprofile = async (req, res) => {
     try {
         if (!req.user || !req.user.id) {
-            return res.status(401).json({ message: "Unauthorized" })
+            return res.status(401).json({  success: false, error: "Unauthorized" })
         }
 
         const user = await User.findById(req.user.id).select('-passwordHash')
         if (!user) {
-            return res.status(404).json({ message: "user not found" })
+            return res.status(404).json({  success: false, error: "user not found" })
         }
 
         const { error, value } = updateProfileSchema.validate(req.body);
@@ -48,7 +48,7 @@ exports.putprofile = async (req, res) => {
                 field: err.path.join('.'),
                 message: err.message
             }));
-            return res.status(400).json({ success: false, errors });
+            return res.status(400).json({ success: false, error: errors });
         }
 
         if (value.name) {
@@ -76,25 +76,25 @@ exports.putprofile = async (req, res) => {
 
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({ success: false, error: 'Server error' });
     }
 }
 //  GET /API/USERS/POINTS
     exports.getpoints = async (req, res) => {
     try {
         if (!req.user || !req.user.id) {
-            return res.status(401).json({ message: "Unauthorized" })
+            return res.status(401).json({  success: false, error: "Unauthorized" })
         }
         const user = await User.findById(req.user.id).select('points')
         if (!user) {
-            return res.status(404).json({ message: "user not found" })
+            return res.status(404).json({ success: false, error: "user not found" })
         }
         res.status(200).json({ success: true, data: { points: user.points }})
 
 
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({ success: false, error: 'Server error' });
     }
 }
 
@@ -102,7 +102,7 @@ exports.putprofile = async (req, res) => {
     exports.adduserskill = async (req, res) => {
          try {
         if (!req.user || !req.user.id) {
-            return res.status(401).json({ message: "Unauthorized" })
+            return res.status(401).json({ success: false, error: "Unauthorized" })
         }
      const { error, value } =adduserskillSchema.validate(req.body);
         if (error) {
@@ -110,20 +110,20 @@ exports.putprofile = async (req, res) => {
                 field: err.path.join('.'),
                 message: err.message
             }));
-            return res.status(400).json({ success: false, errors });
+            return res.status(400).json({ success: false, error: errors });
         }
           const userId = req.user.id;
           const { skillId, level } = value;
 
 
           const SkillResult = await Skill.findById(skillId);
-          if (!SkillResult){
-             return res.status(400).json({message:"skill not found" });
+          if (!SkillResult) {
+            return res.status(404).json({ success: false, error: "Skill not found" });
           }
 
           const existingskill = await UserSkill.findOne({ userId, skillId });
-          if(existingskill){
-            return res.status(400).json({message:"user already have the skill"})
+          if (existingskill) {
+            return res.status(400).json({ success: false, error: "User already has this skill" });
           }
            const userSkill = new UserSkill({
             userId,
@@ -137,7 +137,7 @@ exports.putprofile = async (req, res) => {
            res.status(201).json({success:true,data:userSkill})
         } catch (error) {
              console.error(error);
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({ success: false, error: 'Server error' });
         
          }
         }
@@ -147,14 +147,14 @@ exports.putprofile = async (req, res) => {
 exports.getuserskill = async (req,res)=>{
     try{
         if (!req.user || !req.user.id) {
-            return res.status(401).json({ message: "Unauthorized" })
+            return res.status(401).json({  success: false, error: "Unauthorized" })
         }
         const userId = req.user.id
         const skills = await UserSkill.find({ userId }).populate('skillId','name category');
         res.status(200).json({success:true,data:skills})
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({  success: false, error: 'Server error' });
     }
 
 }

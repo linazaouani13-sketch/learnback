@@ -13,18 +13,18 @@ exports.registerUser = async (req, res) => {
 
     //  check required fields
     if (!name || !email || !password) {
-      return res.status(400).json({ message: 'Name, email and password are required' });
+      return res.status(400).json({ success: false, error: 'Name, email and password are required' });
     }
 
     //  only @estin.dz is allowed
     if (!email.endsWith('@estin.dz')) {
-      return res.status(400).json({ message: 'Only @estin.dz emails are allowed' });
+      return res.status(400).json({  success: false, error: 'Only @estin.dz emails are allowed' });
     }
 
     // Check if user already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res.status(400).json({ message: 'User already exists' });
+      return res.status(400).json({  success: false, error: 'User already exists' });
     }
 
     // Hash password
@@ -61,12 +61,13 @@ exports.registerUser = async (req, res) => {
 
     // Respond (NO JWT — user must verify email first)
     res.status(201).json({
-      message: 'Registration successful! Please check your email to verify your account.'
+      success: true,
+      data: 'Registration successful! Please check your email to verify your account.'
     });
 
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ success: false, error: 'Server error' });
   }
 };
 
@@ -79,7 +80,7 @@ exports.verifyEmail = async (req, res) => {
     const { token } = req.query;
 
     if (!token) {
-      return res.status(400).json({ message: 'Token is required' });
+      return res.status(400).json({  success: false, error: 'Token is required' });
     }
 
     // Find user with this token that hasn't expired
@@ -89,7 +90,7 @@ exports.verifyEmail = async (req, res) => {
     });
 
     if (!user) {
-      return res.status(400).json({ message: 'Invalid or expired token' });
+      return res.status(400).json({  success: false, error: 'Invalid or expired token' });
     }
 
     // Mark as verified and clear token
@@ -98,11 +99,11 @@ exports.verifyEmail = async (req, res) => {
     user.tokenExpires = undefined;
     await user.save();
 
-    res.status(200).json({ message: 'Email verified successfully! You can now log in.' });
+    res.status(200).json({success: true, data: 'Email verified successfully! You can now log in.' });
 
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({  success: false, error: 'Server error' });
   }
 };
 
@@ -115,23 +116,23 @@ exports.loginUser = async (req, res) => {
     const { email, password } = req.body;
 
     if (!email || !password) {
-      return res.status(400).json({ message: 'Email and password are required' });
+      return res.status(400).json({  success: false, error: 'Email and password are required' });
     }
 
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(400).json({ message: 'Invalid email or password' });
+      return res.status(400).json({  success: false, error: 'Invalid email or password' });
     }
 
     // Check if email is verified
     if (!user.verified) {
-      return res.status(403).json({ message: 'Please verify your email before logging in' });
+      return res.status(403).json({  success: false, error: 'Please verify your email before logging in' });
     }
 
     // Compare password
     const isMatch = await bcrypt.compare(password, user.passwordHash);
     if (!isMatch) {
-      return res.status(401).json({ message: 'Invalid email or password' });
+      return res.status(401).json({  success: false, error: 'Invalid email or password' });
     }
 
     // Generate token
@@ -143,16 +144,19 @@ exports.loginUser = async (req, res) => {
 
     // Send response
     res.status(200).json({
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      role: user.role,
-      token
+      success: true,
+      data: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        token
+      }
     });
 
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ success: false, error: 'Server error' });
   }
 };
 
