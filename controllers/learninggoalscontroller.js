@@ -34,7 +34,6 @@ exports.addGoal = async (req,res)=>{
            const learningGoal = new LearningGoal({
             userId,
             skillId,
-            createdAt: new Date(),
            })
              await learningGoal.save();
     
@@ -47,7 +46,7 @@ exports.addGoal = async (req,res)=>{
 }
 
 // GET /api/goals/usergoal
- exports.getusergoal = async (req,res)=>{
+ exports.getUserGoal = async (req,res)=>{
         try{
         if (!req.user || !req.user.id) {
             return res.status(401).json({ success: false, error: "Unauthorized" })

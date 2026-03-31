@@ -4,7 +4,6 @@ const authMiddleware = (req, res, next) => {
   const authHeader = req.headers['authorization'];
   if (!authHeader) return res.status(401).json({ success: false, error: 'No token provided' });
 
-  // Support both "Bearer <token>" and raw token
   const token = authHeader.startsWith('Bearer ') ? authHeader.split(' ')[1] : authHeader;
 
   jwt.verify(token, process.env.JWT_SECRET, (err, user) => {

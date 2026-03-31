@@ -16,6 +16,7 @@ app.use('/api/auth', require('./routes/AuthRoutes'));
 app.use('/api/users', require('./routes/userRouters'));
 app.use('/api/skills', require('./routes/skillroutes'));
 app.use('/api/learninggoals', require('./routes/learninggoalroutes'));
+app.use('/api/tests', require('./routes/testroutes'));
 
 
 app.listen(PORT, () => {
