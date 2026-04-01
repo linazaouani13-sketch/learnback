@@ -47,14 +47,12 @@ exports.generateSkillTest = async (req, res, next) => {
 
     res.status(201).json({ success: true, data: newTest });
   } catch (error) {
-    console.error("=== Groq Test Generation Error ===");
-    console.error("Message:", error.message);
-    
+    console.error(error);
     res.status(500).json({ 
       success: false, 
       error: 'Failed to generate test',
-      message: error.message 
-    });
+      message: error.message  });
   }
+
 }
 ;

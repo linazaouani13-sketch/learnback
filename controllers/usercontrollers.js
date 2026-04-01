@@ -24,9 +24,13 @@ exports.getprofile = async (req, res) => {
 
 
     } catch (error) {
-        console.error(error);
-        res.status(500).json({  success: false, error: 'Server error' });
-    }
+    console.error(error);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Failed to get profile',
+      message: error.message  });
+  }
+
 
 }
 // PUT /api/users/profile
@@ -75,9 +79,13 @@ exports.putprofile = async (req, res) => {
         });
 
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ success: false, error: 'Server error' });
-    }
+    console.error(error);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Failed to update profile',
+      message: error.message  });
+  }
+
 }
 //  GET /API/USERS/POINTS
     exports.getpoints = async (req, res) => {
@@ -93,9 +101,13 @@ exports.putprofile = async (req, res) => {
 
 
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ success: false, error: 'Server error' });
-    }
+    console.error(error);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Failed to fetch points',
+      message: error.message  });
+  }
+
 }
 
 // POST/API/USERS/SKILL 
@@ -135,11 +147,14 @@ exports.putprofile = async (req, res) => {
              await userSkill.save();
     
            res.status(201).json({success:true,data:userSkill})
-        } catch (error) {
-             console.error(error);
-        res.status(500).json({ success: false, error: 'Server error' });
-        
-         }
+    } catch (error) {
+    console.error(error);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Failed to add user skill',
+      message: error.message  });
+  }
+
         }
 
  
@@ -153,8 +168,12 @@ exports.getuserskill = async (req,res)=>{
         const skills = await UserSkill.find({ userId }).populate('skillId','name category');
         res.status(200).json({success:true,data:skills})
     } catch (error) {
-        console.error(error);
-        res.status(500).json({  success: false, error: 'Server error' });
-    }
+    console.error(error);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Failed to fetch user skills',
+      message: error.message  });
+  }
+
 
 }

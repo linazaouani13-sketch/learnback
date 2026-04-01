@@ -40,9 +40,13 @@ exports.addGoal = async (req,res)=>{
            res.status(201).json({success:true,data:learningGoal})
            
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ success: false, error: 'Server error' });
-    }
+    console.error(error);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Failed to add learning goal',
+      message: error.message  });
+  }
+
 }
 
 // GET /api/goals/usergoal
@@ -56,7 +60,11 @@ exports.addGoal = async (req,res)=>{
         res.status(200).json({success:true,data:learningGoal})
          
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ success: false, error: 'Server error' });
-    }
+    console.error(error);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Failed to fetch learning goals',
+      message: error.message  });
+  }
+
 }

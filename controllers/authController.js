@@ -67,8 +67,12 @@ exports.registerUser = async (req, res) => {
 
   } catch (error) {
     console.error(error);
-    res.status(500).json({ success: false, error: 'Server error' });
+    res.status(500).json({ 
+      success: false, 
+      error: 'Registration failed',
+      message: error.message  });
   }
+
 };
 
 
@@ -103,8 +107,12 @@ exports.verifyEmail = async (req, res) => {
 
   } catch (error) {
     console.error(error);
-    res.status(500).json({  success: false, error: 'Server error' });
+    res.status(500).json({ 
+      success: false, 
+      error: 'Verification failed',
+      message: error.message  });
   }
+
 };
 
 
@@ -156,8 +164,12 @@ exports.loginUser = async (req, res) => {
 
   } catch (error) {
     console.error(error);
-    res.status(500).json({ success: false, error: 'Server error' });
+    res.status(500).json({ 
+      success: false, 
+      error: 'Login failed',
+      message: error.message  });
   }
+
 };
 
 // TODO: Password reset – "Forgot password" functionality.

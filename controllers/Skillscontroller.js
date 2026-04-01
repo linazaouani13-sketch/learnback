@@ -34,9 +34,13 @@ const Skill = require('../models/skill');
     res.status(201).json({ success: true, data: skill });
 
     } catch (error) {
-        console.error(error);
-        res.status(500).json({  success: false, error: 'Server error' });
-    }
+    console.error(error);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Failed to create skill',
+      message: error.message  });
+  }
+
 }
 
 
@@ -49,9 +53,13 @@ exports.listSkill = async (req, res) => {
         const skills =await Skill.find() 
         res.status(200).json({success:true,data:skills})
      } catch (error) {
-        console.error(error);
-        res.status(500).json({  success: false, error: 'Server error' });
-    }  
+    console.error(error);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Failed to list skills',
+      message: error.message  });
+  }
+  
 }
 
 
