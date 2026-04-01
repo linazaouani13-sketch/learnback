@@ -11,7 +11,8 @@ exports.getTestBySkill = async(req,res)=>{
             return res.status(401).json({ success: false, error: "Unauthorized" })
         }
         const { skillId } = req.params;
-        const test = await SkillTest.findOne({ skillId: skillId })
+        const test = await SkillTest.findOne({ skillId: skillId }).select('-questions.correctAnswer');
+
         if(!test){
             return res.status(404).json({ success: false, error: "Test not found" })
         }
@@ -19,9 +20,11 @@ exports.getTestBySkill = async(req,res)=>{
 
     }catch (error) {
     console.error(error);
-    res.status(500).json({ success: false, error: 'Server error' });
-  }
+    res.status(500).json({ 
+      success: false, 
+      error: 'Failed to get test',
+      message: error.message  });
 
     
-
+    }
 }
