@@ -37,7 +37,7 @@ const UserSchema = new mongoose.Schema({
   verificationToken: { type: String },
   tokenExpires: { type: Date }
 }, {
-  timestamps: true // createdAt and updatedAt
+  timestamps: true 
 
 }
 );
