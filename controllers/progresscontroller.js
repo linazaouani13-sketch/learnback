@@ -182,28 +182,24 @@ exports.getMatchProgress = async (req, res) => {
     const userACompleted = getCompletedSteps(match.userAId.toString());
     const userBCompleted = getCompletedSteps(match.userBId.toString());
 
-    const getStepStatus = (stepNumber) => {
-      const userAStep = userACompleted.includes(stepNumber);
-      const userBStep = userBCompleted.includes(stepNumber);
-      if (userAStep && userBStep) return 'completed';
-      if (userAStep) return 'userA_completed';
-      if (userBStep) return 'userB_completed';
-      return 'pending';
-    };
-
     const roadmapWithStatus = steps.map(step => {
-      const status = getStepStatus(step.stepNumber);
-      const isCurrentStep = status === 'pending' || status === 'userA_completed' || status === 'userB_completed';
-      
-      // Destructure to remove quiz
-      const { quiz, ...stepData } = step.toObject();
+      const isFinished = 
+        (step.targetUserId.toString() === match.userAId.toString() && userACompleted.includes(step.stepNumber)) ||
+        (step.targetUserId.toString() === match.userBId.toString() && userBCompleted.includes(step.stepNumber));
 
+      const { quiz, ...stepData } = step.toObject();
       return {
         ...stepData,
-        status,
-        isCurrentStep
+        status: isFinished ? 'completed' : 'pending'
       };
     });
+
+    const currentStepIndex = roadmapWithStatus.findIndex(s => s.status === 'pending');
+
+    const finalRoadmap = roadmapWithStatus.map((step, index) => ({
+      ...step,
+      isCurrentStep: index === currentStepIndex
+    }));
 
     res.status(200).json({
       success: true,
@@ -219,7 +215,7 @@ exports.getMatchProgress = async (req, res) => {
           completedSteps: userBCompleted,
           progressPercent: totalSteps > 0 ? (userBCompleted.length / totalSteps) * 100 : 0
         },
-        roadmap: roadmapWithStatus
+        roadmap: finalRoadmap
       }
     });
   } catch (error) {
