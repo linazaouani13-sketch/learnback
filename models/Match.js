@@ -6,8 +6,8 @@ const matchSchema = new mongoose.Schema({
   teachSkillAId: { type: mongoose.Schema.Types.ObjectId, ref: 'Skill', required: true },
   teachSkillBId: { type: mongoose.Schema.Types.ObjectId, ref: 'Skill', required: true },
   status: { type: String, enum: ['pending', 'active', 'completed', 'cancelled'], default: 'pending' },
-  roadmapApprovedByA: { type: Boolean, default: false },
-  roadmapApprovedByB: { type: Boolean, default: false },
+  matchApprovedByA: { type: Boolean, default: false },
+  matchApprovedByB: { type: Boolean, default: false },
   createdAt: { type: Date, default: Date.now },
   activatedAt: Date,
   completedAt: Date

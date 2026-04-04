@@ -3,11 +3,15 @@ const LearningGoal = require('../models/LearningGoal');
 const Match = require('../models/Match');
 const User = require('../models/User');
 const Skill = require('../models/skill');
+const { generateRoadmapForMatch } = require('../services/roadmapservice');
 
 
 // POST /api/matches/find
 exports.findMatch = async (req, res, next) => {
   try {
+        if (!req.user || !req.user.id) {
+            return res.status(401).json({ success: false, error: "Unauthorized" })
+        }
     const currentUserId = req.user.id;
     const { learnSkillId } = req.body;
 
@@ -75,8 +79,8 @@ exports.findMatch = async (req, res, next) => {
       teachSkillAId: chosenTeachSkillId,
       teachSkillBId: learnSkillId,
       status: 'pending',
-      roadmapApprovedByA: false,
-      roadmapApprovedByB: false,
+      matchApprovedByA: false,
+      matchApprovedByB: false,
       createdAt: new Date()
     });
 
@@ -97,3 +101,52 @@ exports.findMatch = async (req, res, next) => {
         });
   }
 };
+
+// PUT /api/matches/:id/approve-match
+exports.approvematch = async(req,res)=>{
+ try {
+        const matchId =req.params.id;
+        const currentuserId = req.user.id;
+        const match = await Match.findById(matchId);
+        if(!match){
+            return res.status(404).json({ success: false, error: "Match not found" })
+        }
+        if (match.userAId.toString() === currentuserId) {
+            match.matchApprovedByA = true;
+            if (match.matchApprovedByB) {
+                match.status = 'active';
+                match.activatedAt = new Date();
+                await generateRoadmapForMatch(match._id);
+            }
+        } else if (match.userBId.toString() === currentuserId) {
+            match.matchApprovedByB = true;
+            if (match.matchApprovedByA) {
+                match.status = 'active';
+                match.activatedAt = new Date();
+                await generateRoadmapForMatch(match._id);
+            }
+        } else {
+            return res.status(403).json({ success: false, error: "Unauthorized" });
+        }
+
+        await match.save();
+
+        await match.populate([
+            { path: 'teachSkillAId', select: 'name description category' },
+            { path: 'teachSkillBId', select: 'name description category' },
+            { path: 'userAId', select: 'name email profile points role' },
+            { path: 'userBId', select: 'name email profile points role' }
+        ]);
+
+        return res.status(200).json({ success: true, data: match });
+
+
+     } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to approve proposal',
+      message: error.message
+    });
+  }   
+}
