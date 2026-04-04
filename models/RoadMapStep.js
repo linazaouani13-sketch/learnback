@@ -8,6 +8,7 @@ const stepQuizQuestionSchema = new mongoose.Schema({
 
 const roadmapStepSchema = new mongoose.Schema({
   matchId: { type: mongoose.Schema.Types.ObjectId, ref: 'Match', required: true },
+  targetUserId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   stepNumber: { type: Number, required: true },
   description: { type: String, required: true },
   deadline: Date,
