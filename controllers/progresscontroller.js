@@ -152,3 +152,82 @@ exports.submitStepQuiz = async (req, res) => {
     });
   }
 };
+
+    
+// GET /api/match/:matchId/progress
+exports.getMatchProgress = async (req, res) => {
+  try {
+    const { matchId } = req.params;
+    const userId = req.user.id;
+
+    const match = await Match.findById(matchId);
+    if (!match) {
+      return res.status(404).json({ success: false, error: 'Match not found' });
+    }
+    if (match.userAId.toString() !== userId && match.userBId.toString() !== userId) {
+      return res.status(403).json({ success: false, error: 'Not authorized' });
+    }
+
+    const steps = await RoadmapStep.find({ matchId }).sort({ stepNumber: 1 });
+    const totalSteps = steps.length;
+
+    const progress = await StepProgress.find({ matchId }).populate('stepId', 'stepNumber');
+
+    const getCompletedSteps = (userId) => {
+      return progress
+        .filter(p => p.userId.toString() === userId && p.passed === true)
+        .map(p => p.stepId.stepNumber);
+    };
+
+    const userACompleted = getCompletedSteps(match.userAId.toString());
+    const userBCompleted = getCompletedSteps(match.userBId.toString());
+
+    const getStepStatus = (stepNumber) => {
+      const userAStep = userACompleted.includes(stepNumber);
+      const userBStep = userBCompleted.includes(stepNumber);
+      if (userAStep && userBStep) return 'completed';
+      if (userAStep) return 'userA_completed';
+      if (userBStep) return 'userB_completed';
+      return 'pending';
+    };
+
+    const roadmapWithStatus = steps.map(step => {
+      const status = getStepStatus(step.stepNumber);
+      const isCurrentStep = status === 'pending' || status === 'userA_completed' || status === 'userB_completed';
+      
+      // Destructure to remove quiz
+      const { quiz, ...stepData } = step.toObject();
+
+      return {
+        ...stepData,
+        status,
+        isCurrentStep
+      };
+    });
+
+    res.status(200).json({
+      success: true,
+      data: {
+        totalSteps,
+        userA: {
+          userId: match.userAId,
+          completedSteps: userACompleted,
+          progressPercent: totalSteps > 0 ? (userACompleted.length / totalSteps) * 100 : 0
+        },
+        userB: {
+          userId: match.userBId,
+          completedSteps: userBCompleted,
+          progressPercent: totalSteps > 0 ? (userBCompleted.length / totalSteps) * 100 : 0
+        },
+        roadmap: roadmapWithStatus
+      }
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to get match progress',
+      message: error.message
+    });
+  }
+};
