@@ -7,6 +7,9 @@ const Skill = require('../models/skill');
 // POST /api/Skills/create (by admin)
 exports.createSkill = async (req, res) => {
   try {
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({ success: false, error: "Unauthorized" })
+    }
     if (req.user.role !== 'admin') {
       return res.status(403).json({ success: false, error: "Access denied. Only admin is allowed." })
     }

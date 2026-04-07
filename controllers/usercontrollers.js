@@ -1,6 +1,7 @@
 const User = require('../models/User');
 const Skill = require('../models/skill');
 const UserSkill = require('../models/UserSkill');
+const MatchReview = require('../models/matchreviews');
 
 const updateProfileSchema = require('../validations/uppfvalidator')
 const adduserskillSchema = require('../validations/addskillvalidator');
@@ -172,6 +173,25 @@ exports.getuserskill = async (req,res)=>{
     res.status(500).json({ 
       success: false, 
       error: 'Failed to fetch user skills',
+      message: error.message  });
+  }
+
+
+}
+// GETT/API/USERS/:userId/reviews
+exports.getuserreviews = async (req,res)=>{
+    try{
+        if (!req.user || !req.user.id) {
+            return res.status(401).json({  success: false, error: "Unauthorized" })
+        }
+        const userId = req.params.userId
+        const reviews = await MatchReview.find({ revieweeId: userId }).populate('matchId','userAId userBId teachSkillAId teachSkillBId');
+        res.status(200).json({success:true,data:reviews})
+    } catch (error) {
+    console.error(error);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Failed to fetch user reviews',
       message: error.message  });
   }
 

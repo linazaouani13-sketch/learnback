@@ -70,7 +70,6 @@ exports.submitStepQuiz = async (req, res) => {
       return res.status(403).json({ success: false, error: 'This step is not assigned to you' });
     }
 
-
     const match = await Match.findById(step.matchId);
     if (!match) {
       return res.status(404).json({ success: false, error: 'Match not found' });
@@ -79,12 +78,10 @@ exports.submitStepQuiz = async (req, res) => {
       return res.status(403).json({ success: false, error: 'Unauthorized' });
     }
 
-
     if (match.status !== 'active') {
       return res.status(400).json({ success: false, error: 'Match is not active' });
     }
 
-    
     const totalQuestions = step.quiz.questions.length;
     if (answers.length !== totalQuestions) {
       return res.status(400).json({
@@ -132,6 +129,49 @@ exports.submitStepQuiz = async (req, res) => {
         completedAt: new Date()
       });
       await progress.save();
+
+      if (passed) {
+        const steps = await RoadmapStep.find({ matchId: step.matchId });
+        const allProgress = await StepProgress.find({ matchId: step.matchId, passed: true });
+
+        const roadmapFinished = steps.every(s =>
+          allProgress.some(p => p.stepId.toString() === s._id.toString() && p.userId.toString() === s.targetUserId.toString())
+        );
+
+        if (roadmapFinished && match.status !== 'completed') {
+          const pointsAwarded = 100; 
+          await User.findByIdAndUpdate(match.userAId, { $inc: { points: pointsAwarded } });
+          await User.findByIdAndUpdate(match.userBId, { $inc: { points: pointsAwarded } });
+
+          match.status = 'completed';
+          match.completedAt = new Date();
+          await match.save();
+
+          const addSkillToUser = async (userId, skillId) => {
+            const exists = await UserSkill.findOne({ userId, skillId });
+            if (!exists) {
+              await UserSkill.create({
+                userId,
+                skillId,
+                level: 'Beginner',
+                source: 'match-completion',
+                addedAt: new Date()
+              });
+            }
+          };
+
+          await addSkillToUser(match.userAId, match.teachSkillBId);
+          await addSkillToUser(match.userBId, match.teachSkillAId);
+
+          // Remove learning goals for those skills
+          await LearningGoal.deleteMany({
+            $or: [
+              { userId: match.userAId, skillId: match.teachSkillBId },
+              { userId: match.userBId, skillId: match.teachSkillAId }
+            ]
+          });
+        }
+      }
     } catch (err) {
       if (err.code === 11000) {
         return res.status(400).json({ success: false, error: 'You have already submitted this step' });
@@ -141,7 +181,12 @@ exports.submitStepQuiz = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      data: { score, passed, stepCompleted: passed }
+      data: {
+        score,
+        passed,
+        stepCompleted: passed,
+        matchCompleted: match.status === 'completed'
+      }
     });
   } catch (error) {
     console.error(error);
@@ -152,7 +197,6 @@ exports.submitStepQuiz = async (req, res) => {
     });
   }
 };
-
     
 // GET /api/match/:matchId/progress
 exports.getMatchProgress = async (req, res) => {
@@ -200,7 +244,7 @@ exports.getMatchProgress = async (req, res) => {
       ...step,
       isCurrentStep: index === currentStepIndex
     }));
-
+              
     res.status(200).json({
       success: true,
       data: {

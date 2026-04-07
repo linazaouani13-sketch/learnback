@@ -3,6 +3,7 @@ const LearningGoal = require('../models/LearningGoal');
 const Match = require('../models/Match');
 const User = require('../models/User');
 const Skill = require('../models/skill');
+const MatchReview = require('../models/matchreviews');
 const { generateRoadmapForMatch } = require('../services/roadmapservice');
 
 
@@ -89,7 +90,8 @@ exports.findMatch = async (req, res, next) => {
       { path: 'teachSkillAId', select: 'name description category' },
       { path: 'teachSkillBId', select: 'name description category' },
       { path: 'userAId', select: 'name email profile points role' },
-      { path: 'userBId', select: 'name email profile points role' }
+      { path: 'userBId', select: 'name email profile points role' },
+      
     ]);
     res.status(201).json({ success: true, data: newMatch });
   } catch (err) {
@@ -149,4 +151,132 @@ exports.approvematch = async(req,res)=>{
       message: error.message
     });
   }   
+}
+
+// GET /api/matches/my-matches
+exports.getMyMatches = async (req, res) => {
+  try {
+    if (!req.user || !req.user.id) {
+            return res.status(401).json({ success: false, error: "Unauthorized" })
+        }
+    const currentUserId = req.user.id;
+    const matches = await Match.find({
+      $or: [
+        { userAId: currentUserId },
+        { userBId: currentUserId }
+      ]
+    }).populate([
+      { path: 'teachSkillAId', select: 'name category' },
+      { path: 'teachSkillBId', select: 'name category' },
+      { path: 'userAId', select: 'name email profile points role' },
+      { path: 'userBId', select: 'name email profile points role' }
+    ]);
+    res.status(200).json({ success: true, data: matches });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to get matches',
+      message: error.message
+    });
+  }
+}
+
+// GET /api/matches/requests
+exports.getRequests = async (req, res) => {
+  try {
+    if (!req.user || !req.user.id) {
+            return res.status(401).json({ success: false, error: "Unauthorized" })
+        }
+    const currentUserId = req.user.id;
+    const requests = await Match.find({
+   userBId: currentUserId,
+   status: 'pending'
+    }).populate([
+      { path: 'teachSkillAId', select: 'name category' },
+      { path: 'teachSkillBId', select: 'name category' },
+      { path: 'userAId', select: 'name email profile points role' },
+      { path: 'userBId', select: 'name email profile points role' },
+    ]);
+    res.status(200).json({ success: true, data: requests });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to get requests',
+      message: error.message
+    });
+  }
+}
+// POST /api/matches/:matchId/review
+exports.reviewMatch = async (req, res) => {
+  try {
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({ success: false, error: "Unauthorized" })
+    }
+    const matchId = req.params.matchId;
+    const currentUserId = req.user.id;
+    const { rating, review, comment } = req.body;
+    const match = await Match.findById(matchId);
+    if (!match) {
+      return res.status(404).json({ success: false, error: "Match not found" })
+    }
+    if (match.status !== 'completed') {
+      return res.status(400).json({ success: false, error: "Match must be completed to be reviewed" })
+    }
+    if (match.userAId.toString() !== currentUserId && match.userBId.toString() !== currentUserId) {
+      return res.status(403).json({ success: false, error: "Unauthorized" })
+    }
+    if(rating<1||rating>5){
+            return res.status(400).json({ success: false, error: "review must be between 1 and 5" })
+
+    }
+
+    const newReview = new MatchReview({matchId,
+      reviewerId: currentUserId,
+      revieweeId: match.userAId.toString() === currentUserId ? match.userBId : match.userAId,
+      rating,
+      review,
+      comment
+    });
+    await newReview.save();
+    res.status(201).json({ success: true, data: newReview });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to review match',
+      message: error.message
+    });
+  }
+}
+
+// GET /api/matches/:matchId/review
+exports.getMatchReview = async (req, res) => {
+  try {
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({ success: false, error: "Unauthorized" })
+    }
+    const matchId = req.params.matchId;
+    const currentUserId = req.user.id;
+    const match = await Match.findById(matchId);
+    if (!match) {
+      return res.status(404).json({ success: false, error: "Match not found" })
+    }
+    if (match.status !== 'completed') {
+      return res.status(400).json({ success: false, error: "Match must be completed to be reviewed" })
+    }
+    if (match.userAId.toString() !== currentUserId && match.userBId.toString() !== currentUserId) {
+      return res.status(403).json({ success: false, error: "Unauthorized" })
+    }
+    const matchReview = await MatchReview.find({matchId});
+    res.status(200).json({ success: true, data: matchReview });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to get match review',
+      message: error.message
+    });
+  }
 }

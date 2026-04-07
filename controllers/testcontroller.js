@@ -80,6 +80,8 @@ exports.takeTest = async (req, res) => {
         await verification.save();
 
         if (passed) {
+            await User.findByIdAndUpdate(userId, { $inc: { points: 50 } });
+
             const existingSkill = await UserSkill.findOne({ userId, skillId: test.skillId });
             if (!existingSkill) {
                 const newSkill = new UserSkill({
