@@ -1,6 +1,6 @@
-const User = require('../models/User');
-const authMiddleware = require('../middlewares/authMiddleware');
-const createSkillSchema = require('../validations/creatskillvalidator');
+const User = require('../models/user');
+const authMiddleware = require('../middlewares/authmiddleware');
+const createSkillSchema = require('../validations/createskillvalidator');
 const Skill = require('../models/skill');
 
 

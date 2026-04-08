@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const { createSkill, listSkill } = require('../controllers/Skillscontroller');
-const authMiddleware = require('../middlewares/authMiddleware');
+const { createSkill, listSkill } = require('../controllers/skillscontroller');
+const authMiddleware = require('../middlewares/authmiddleware');
 
 
 router.post('/create', authMiddleware, createSkill);

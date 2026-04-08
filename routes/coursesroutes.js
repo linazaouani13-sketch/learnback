@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { createCourse, listCourses,getcourse , unlockcourse,completecourse} = require('../controllers/coursescontroller');
-const authMiddleware = require('../middlewares/authMiddleware');
+const authMiddleware = require('../middlewares/authmiddleware');
 
 // not tested
 router.post('/create', authMiddleware, createCourse);

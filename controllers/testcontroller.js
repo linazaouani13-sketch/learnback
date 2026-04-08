@@ -1,8 +1,8 @@
-const User = require('../models/User');
+const User = require('../models/user');
 const Skill = require('../models/skill');
-const SkillTest = require('../models/SkillTest');
-const UserSkill = require('../models/UserSkill');
-const UserSkillVerification = require('../models/Skillverification');
+const SkillTest = require('../models/skilltest');
+const UserSkill = require('../models/userskill');
+const UserSkillVerification = require('../models/skillverification');
 const takeTestSchema = require('../validations/answervalidator');
 
 // GET /api/tests/:skillId

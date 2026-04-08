@@ -14,13 +14,13 @@ app.get('/', (req, res) => {
   res.send('LearnBack API is running!');
 });
 
-app.use('/api/auth', require('./routes/AuthRoutes'));
-app.use('/api/users', require('./routes/userRouters'));
+app.use('/api/auth', require('./routes/authroutes'));
+app.use('/api/users', require('./routes/userroutes'));
 app.use('/api/skills', require('./routes/skillroutes'));
 app.use('/api/learninggoals', require('./routes/learninggoalroutes'));
 app.use('/api/tests', require('./routes/testroutes'));
 app.use('/api/match',require('./routes/matchingroutes'));
-app.use('/api/courses', require('./routes/courSesroutes'));
+app.use('/api/courses', require('./routes/coursesroutes'));
 app.use('/api/admin', require('./routes/adminroutes'));
 
 

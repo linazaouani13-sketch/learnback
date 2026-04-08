@@ -1,7 +1,7 @@
-const UserSkill = require('../models/UserSkill');
-const LearningGoal = require('../models/LearningGoal');
-const Match = require('../models/Match');
-const User = require('../models/User');
+const UserSkill = require('../models/userskill');
+const LearningGoal = require('../models/learninggoal');
+const Match = require('../models/match');
+const User = require('../models/user');
 const Skill = require('../models/skill');
 const MatchReview = require('../models/matchreviews');
 const { generateRoadmapForMatch } = require('../services/roadmapservice');

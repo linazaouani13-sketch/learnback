@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const {findMatch ,approvematch,getMyMatches,getRequests,reviewMatch,getMatchReview} = require('../controllers/matchingcontroller');
 const {getRoadmap,submitStepQuiz,getMatchProgress} = require('../controllers/progresscontroller');
-const authMiddleware = require('../middlewares/authMiddleware');
+const authMiddleware = require('../middlewares/authmiddleware');
 
 
 

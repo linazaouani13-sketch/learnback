@@ -1,10 +1,10 @@
-const UserSkill = require('../models/UserSkill');
-const LearningGoal = require('../models/LearningGoal');
-const Match = require('../models/Match');
-const User = require('../models/User');
+const UserSkill = require('../models/userskill');
+const LearningGoal = require('../models/learninggoal');
+const Match = require('../models/match');
+const User = require('../models/user');
 const Skill = require('../models/skill');
-const RoadmapStep = require('../models/RoadMapStep');
-const StepProgress = require('../models/StepProgress');
+const RoadmapStep = require('../models/roadmapstep');
+const StepProgress = require('../models/stepprogress');
 const { generateRoadmapForMatch } = require('../services/roadmapservice');
 
 // GET /api/matches/:matchId/roadmap

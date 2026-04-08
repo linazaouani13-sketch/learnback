@@ -1,9 +1,9 @@
 const model = require('../config/groq');
-const SkillTest = require('../models/SkillTest'); 
-const UserSkill = require('../models/UserSkill');
-const User = require('../models/User');
+const SkillTest = require('../models/skilltest'); 
+const UserSkill = require('../models/userskill');
+const User = require('../models/user');
 const Skill = require('../models/skill');
-const generateTestSchema = require('../validations/generatetestvaliator');
+const generateTestSchema = require('../validations/generatetestvalidator');
 
 
 exports.generateSkillTest = async (req, res, next) => {

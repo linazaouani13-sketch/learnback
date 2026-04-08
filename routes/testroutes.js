@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const authMiddleware = require('../middlewares/authMiddleware');
+const authMiddleware = require('../middlewares/authmiddleware');
 const { generateSkillTest  } = require('../controllers/generateskilltestcontroller');
 const {getTestBySkill,takeTest,getverifications}= require('../controllers/testcontroller');
 

@@ -1,8 +1,8 @@
-const User = require('../models/User');
-const authMiddleware = require('../middlewares/authMiddleware');
-const ProfessionalCourse = require('../models/ProfessionalCourse');
-const UserCourseUnlock = require('../models/userunlockcources');
-const createCourseSchema = require('../validations/creatcoursevalidator');
+const User = require('../models/user');
+const authMiddleware = require('../middlewares/authmiddleware');
+const ProfessionalCourse = require('../models/professionalcourse');
+const UserCourseUnlock = require('../models/userunlockcourses');
+const createCourseSchema = require('../validations/createcoursevalidator');
 const Skill = require('../models/skill');
 
 

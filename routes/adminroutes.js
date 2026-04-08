@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { getskillbyid,getuserskill,getallmatches,getmatchbyid,getallcourses,getcoursebyid,deleteuser, getallusers, forceupdatematch} = require('../controllers/admincontroller');
-const authMiddleware = require('../middlewares/authMiddleware');
+const authMiddleware = require('../middlewares/authmiddleware');
 
 
 router.get('/skills/:skillId',authMiddleware,getskillbyid);

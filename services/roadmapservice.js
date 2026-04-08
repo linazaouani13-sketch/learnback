@@ -1,5 +1,5 @@
-const Match = require('../models/Match');
-const RoadmapStep = require('../models/RoadMapStep');
+const Match = require('../models/match');
+const RoadmapStep = require('../models/roadmapstep');
 const groq = require('../config/groq'); 
 
 

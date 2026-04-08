@@ -1,8 +1,8 @@
-const User = require('../models/User');
+const User = require('../models/user');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
-const sendEmail = require('../utils/sendEmail');
+const sendEmail = require('../utils/sendemail');
 
 //     Register a new user
 //    POST /api/auth/register

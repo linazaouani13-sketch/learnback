@@ -1,8 +1,8 @@
-const User = require('../models/User');
+const User = require('../models/user');
 const Skill = require('../models/skill');
-const UserSkill = require('../models/UserSkill');
+const UserSkill = require('../models/userskill');
 const addgoalSchema = require('../validations/goalsvalidator');
-const LearningGoal = require('../models/LearningGoal');
+const LearningGoal = require('../models/learninggoal');
 
 
 // POST /api/goals/add

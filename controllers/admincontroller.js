@@ -1,16 +1,16 @@
-const User = require('../models/User');
-const authMiddleware = require('../middlewares/authMiddleware');
-const ProfessionalCourse = require('../models/ProfessionalCourse');
-const UserCourseUnlock = require('../models/userunlockcources');
+const User = require('../models/user');
+const authMiddleware = require('../middlewares/authmiddleware');
+const ProfessionalCourse = require('../models/professionalcourse');
+const UserCourseUnlock = require('../models/userunlockcourses');
 const Skill = require('../models/skill');
-const Match = require('../models/Match');
-const UserSkill = require('../models/UserSkill');
-const LearningGoal = require('../models/LearningGoal');
-const StepProgress = require('../models/StepProgress');
-const RoadmapStep = require('../models/RoadMapStep');
-const UserSkillVerification = require('../models/Skillverification');
+const Match = require('../models/match');
+const UserSkill = require('../models/userskill');
+const LearningGoal = require('../models/learninggoal');
+const StepProgress = require('../models/stepprogress');
+const RoadmapStep = require('../models/roadmapstep');
+const UserSkillVerification = require('../models/skillverification');
 const MatchReview = require('../models/matchreviews');
-const QuizResult = require('../models/QuizResult');
+const QuizResult = require('../models/quizresult');
 
 
 // // PUT /api/admin/upgrad/:userId
