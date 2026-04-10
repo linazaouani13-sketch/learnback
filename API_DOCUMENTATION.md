@@ -106,6 +106,56 @@ This document provides exact JSON request and response structures for all LearnB
     { "success": true, "data": { "points": 100 } }
     ```
 
+### Add User Skill
+*   **Method:** `POST /addskill`
+*   **Request Body:**
+    ```json
+    {
+      "skillId": "65f1a...",
+      "level": "Intermediate"
+    }
+    ```
+*   **Success Response (201):**
+    ```json
+    {
+      "success": true,
+      "data": { "userId": "...", "skillId": "...", "level": "Intermediate", "source": "self-reported" }
+    }
+    ```
+
+### Get My Skills
+*   **Method:** `GET /getskill`
+*   **Success Response (200):**
+    ```json
+    {
+      "success": true,
+      "data": [
+        {
+          "_id": "65f1a...",
+          "skillId": { "_id": "...", "name": "Python", "category": "Programming" },
+          "level": "Intermediate",
+          "source": "verified"
+        }
+      ]
+    }
+    ```
+
+### Get My Enrolled Courses
+*   **Method:** `GET /getusercourses`
+*   **Success Response (200):**
+    ```json
+    {
+      "success": true,
+      "data": [
+        {
+          "courseId": "65f1a...",
+          "status": "unlocked",
+          "unlockedAt": "..."
+        }
+      ]
+    }
+    ```
+
 ### Get User Reviews
 *   **Method:** `GET /:userId/userreviews`
 *   **Success Response (200):**
@@ -125,7 +175,63 @@ This document provides exact JSON request and response structures for all LearnB
 
 ---
 
-## 3. Matching & Roadmap APIs
+## 3. Skills APIs
+**Base URL:** `/api/skills`
+
+### List All Skills
+*   **Method:** `GET /list`
+*   **Success Response (200):**
+    ```json
+    {
+      "success": true,
+      "data": [
+        { "_id": "65f1a...", "name": "Python", "category": "Programming", "description": "..." }
+      ]
+    }
+    ```
+
+### Create New Skill (Admin Only)
+*   **Method:** `POST /create`
+*   **Request Body:**
+    ```json
+    {
+      "name": "Rust",
+      "description": "System programming language",
+      "category": "Programming"
+    }
+    ```
+
+---
+
+## 4. Learning Goals APIs
+**Base URL:** `/api/learninggoals`
+
+### Add Learning Goal
+*   **Method:** `POST /newgoal`
+*   **Request Body:** `{ "skillId": "65f1a..." }`
+*   **Success Response (201):**
+    ```json
+    {
+      "success": true,
+      "data": { "userId": "...", "skillId": "...", "createdAt": "..." }
+    }
+    ```
+
+### Get My Learning Goals
+*   **Method:** `GET /usergoal`
+*   **Success Response (200):**
+    ```json
+    {
+      "success": true,
+      "data": [
+        { "skillId": { "_id": "...", "name": "Javascript" }, "userId": "..." }
+      ]
+    }
+    ```
+
+---
+
+## 5. Matching & Roadmap APIs
 **Base URL:** `/api/match` (Requires Auth)
 
 ### Find a Peer Match
@@ -140,9 +246,7 @@ This document provides exact JSON request and response structures for all LearnB
         "userBId": "peer_id",
         "teachSkillAId": "skill_you_teach",
         "teachSkillBId": "skill_you_learn",
-        "status": "pending",
-        "matchApprovedByA": false,
-        "matchApprovedByB": false
+        "status": "pending"
       }
     }
     ```
@@ -181,14 +285,7 @@ This document provides exact JSON request and response structures for all LearnB
     ```json
     {
       "success": true,
-      "data": [
-        {
-          "matchId": "65f1a...",
-          "requesterName": "Ayoub",
-          "skillTheyTeach": "Javascript",
-          "skillTheyWantToLearn": "Python"
-        }
-      ]
+      "data": [ { "matchId": "...", "requesterName": "Ayoub", "skillTheyTeach": "JS" } ]
     }
     ```
 
@@ -198,88 +295,124 @@ This document provides exact JSON request and response structures for all LearnB
     ```json
     {
       "success": true,
-      "data": [
-        {
-          "stepNumber": 1,
-          "description": "Learn syntax",
-          "targetUserId": "...",
-          "quiz": {
-            "questions": [
-              { "question": "What is Python?", "options": ["A", "B", "C"], "id": "q1" }
-            ],
-            "passingScore": 70
-          }
-        }
-      ]
+      "data": [ { "stepNumber": 1, "description": "...", "targetUserId": "..." } ]
     }
     ```
 
-### Submit Quiz
-*   **Method:** `POST /steps/:stepId/submit-quiz`
-*   **Request Body:** `{ "answers": ["Option A", "Option C", "Option B"] }`
+### Get Match Progress
+*   **Method:** `GET /:matchId/progress`
 *   **Success Response (200):**
     ```json
     {
       "success": true,
       "data": {
-        "score": 100,
-        "passed": true,
-        "stepCompleted": true,
-        "matchCompleted": false
+        "totalSteps": 6,
+        "userA": { "completedSteps": [1, 3], "progressPercent": 33.3 },
+        "userB": { "completedSteps": [2], "progressPercent": 16.6 },
+        "roadmap": [ { "stepNumber": 1, "status": "completed", "isCurrentStep": false } ]
       }
     }
     ```
-*   **Note:** If `matchCompleted: true`, users earn **100 points** shared reward.
 
-### Review Match Peer
-*   **Method:** `POST /:matchId/review`
-*   **Request Body:**
-    ```json
-    {
-      "rating": 5,
-      "review": "excellent",
-      "comment": "Very helpful!"
-    }
-    ```
-*   **Success Response (201):**
+### Submit Step Quiz
+*   **Method:** `POST /steps/:stepId/submit-quiz`
+*   **Request Body:** `{ "answers": ["Option A", "Option C"] }`
+*   **Success Response (200):**
     ```json
     {
       "success": true,
-      "data": { "reviewerId": "...", "rating": 5, "comment": "Very helpful!" }
+      "data": { "score": 100, "passed": true, "matchCompleted": false }
+    }
+    ```
+
+### Review Match Peer
+*   **Method:** `POST /:matchId/review`
+*   **Request Body:** `{ "rating": 5, "review": "excellent", "comment": "Great!" }`
+
+### Get Match Reviews
+*   **Method:** `GET /:matchId/review`
+*   **Success Response (200):**
+    ```json
+    {
+      "success": true,
+      "data": [ { "reviewerId": "...", "rating": 5, "comment": "..." } ]
     }
     ```
 
 ---
 
-## 4. Professional Courses APIs
+## 6. Professional Courses APIs
 **Base URL:** `/api/courses` (Requires Auth)
+
+### List All Courses
+*   **Method:** `GET /list`
+*   **Success Response (200):**
+    ```json
+    { "success": true, "data": [ { "title": "Advanced Node.js", "requiredPoints": 200 } ] }
+    ```
+
+### Get Course Details
+*   **Method:** `GET /:id`
+*   **Success Response (200):**
+    ```json
+    { "success": true, "data": { "_id": "...", "title": "...", "content": "..." } }
+    ```
+
+### Create Course (Admin Only)
+*   **Method:** `POST /create`
+*   **Request Body:**
+    ```json
+    {
+      "title": "Machine Learning 101",
+      "description": "Basics of ML",
+      "requiredPoints": 300,
+      "content": "Course content here...",
+      "difficulty": "Intermediate"
+    }
+    ```
 
 ### Unlock Course
 *   **Method:** `POST /:id/unlock`
 *   **Success Response (200):**
     ```json
-    {
-      "success": true,
-      "data": { "userId": "...", "courseId": "...", "status": "unlocked" }
-    }
+    { "success": true, "data": { "status": "unlocked" } }
     ```
 *   **Error (400):** `{ "success": false, "error": "Insufficient points" }`
 
 ### Complete Course
-*   **Method:** `PUT /:id/complete`
+*   **Method:** `POST /:id/complete`
 *   **Success Response (200):**
     ```json
-    {
-      "success": true,
-      "message": "Course marked as completed" 
-    }
+    { "success": true, "data": { "status": "completed", "completedAt": "..." } }
     ```
 *   **Note:** User earns **100 points** automatically.
 
 ---
 
-## 5. Skill Verification APIs
+## 7. Skill Verification APIs
 **Base URL:** `/api/tests` (Requires Auth)
+
+### Generate AI Skill Test
+*   **Method:** `POST /generate`
+*   **Request Body:**
+    ```json
+    {
+      "skillId": "65f1a...",
+      "skillName": "Python",
+      "level": "Intermediate"
+    }
+    ```
+*   **Success Response (201):**
+    ```json
+    { "success": true, "data": { "_id": "...", "questions": [...] } }
+    ```
+
+### Get Test by Skill
+*   **Method:** `GET /:skillId`
+*   **Success Response (200):**
+    ```json
+    { "success": true, "data": { "questions": [...] } }
+    ```
 
 ### Take Verification Test
 *   **Method:** `POST /:testId/take`
@@ -288,32 +421,59 @@ This document provides exact JSON request and response structures for all LearnB
     ```json
     {
       "success": true,
-      "data": {
-        "score": 85,
-        "passed": true,
-        "verification": "65f1a..."
-      }
+      "data": { "score": 85, "passed": true, "verification": "..." }
     }
     ```
-*   **Note:** User earns **50 points** on success and gets "Verified" status for the skill.
+*   **Note:** User earns **50 points** on success and becomes "Verified" for the skill.
+
+### Get My Verifications
+*   **Method:** `GET /verification`
+*   **Success Response (200):**
+    ```json
+    { "success": true, "data": [ { "skillId": { "name": "Python" }, "passed": true } ] }
+    ```
 
 ---
 
-## 6. Admin Control APIs
+## 8. Admin Control APIs
 **Base URL:** `/api/admin` (Requires Admin Token)
 
-### List Users
+### Get User Details
+*   **Method:** `GET /users/:userId`
+*   **Success Response (200):**
+    ```json
+    { "success": true, "data": { "_id": "...", "name": "...", "role": "..." } }
+    ```
+
+### List All Users
 *   **Method:** `GET /users`
 *   **Success Response (200):**
     ```json
-    {
-      "success": true,
-      "data": [
-        { "name": "Iliass", "role": "student", "points": 100 },
-        { "name": "Admin", "role": "admin" }
-      ]
-    }
+    { "success": true, "data": [ { "name": "Iliass", "role": "student" } ] }
     ```
+
+### Get User Skills
+*   **Method:** `GET /users/:userId/skills`
+*   **Success Response (200):**
+    ```json
+    { "success": true, "data": [ { "skillId": { "name": "Python" }, "level": "..." } ] }
+    ```
+
+### List All Matches
+*   **Method:** `GET /matches`
+*   **Success Response (200):**
+    ```json
+    { "success": true, "data": [ { "_id": "...", "status": "active" } ] }
+    ```
+
+### Get Match Details
+*   **Method:** `GET /matches/:matchId`
+
+### List All Courses
+*   **Method:** `GET /courses`
+
+### Get Skill Details
+*   **Method:** `GET /skills/:skillId`
 
 ### Force Complete Match
 *   **Method:** `PUT /matches/:matchId/force-update`
@@ -324,8 +484,5 @@ This document provides exact JSON request and response structures for all LearnB
 *   **Method:** `DELETE /users/:userId`
 *   **Success Response (200):**
     ```json
-    {
-      "success": true,
-      "message": "User and all related data deleted successfully"
-    }
+    { "success": true, "message": "User and all related data deleted successfully" }
     ```
