@@ -19,8 +19,8 @@ app.use('/api/users', require('./routes/userroutes'));
 app.use('/api/skills', require('./routes/skillroutes'));
 app.use('/api/learninggoals', require('./routes/learninggoalroutes'));
 app.use('/api/tests', require('./routes/testroutes'));
-app.use('/api/match',require('./routes/matchingroutes'));
-app.use('/api/courses', require('./routes/coursesroutes'));
+app.use('/api/match', require('./routes/matchingroutes'));
+app.use('/api/courses', require('./routes/courseroutes.js'));
 app.use('/api/admin', require('./routes/adminroutes'));
 
 

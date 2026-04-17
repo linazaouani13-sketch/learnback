@@ -18,4 +18,5 @@ Thumbs.db
 .idea/
 # Fichiers temporaires / lourds
 *.pdf
-test.js
+test.js
+test-atlas.js

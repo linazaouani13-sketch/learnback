@@ -3,6 +3,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const sendEmail = require('../utils/sendemail');
+const { getVerificationEmailTemplate } = require('../utils/emailTemplates');
 
 //     Register a new user
 //    POST /api/auth/register
@@ -53,10 +54,7 @@ exports.registerUser = async (req, res) => {
     await sendEmail(
       email,
       'Verify your LearnBack account',
-      `<h2>Welcome to LearnBack, ${name}!</h2>
-       <p>Please click the link below to verify your email:</p>
-       <a href="${verifyUrl}">Click here to verify</a>
-       <p>This link expires in 24 hours.</p>`
+      getVerificationEmailTemplate(name, verifyUrl, process.env.CLIENT_URL)
     );
 
     // Respond (NO JWT — user must verify email first)
