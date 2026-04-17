@@ -90,7 +90,13 @@ exports.verifyEmail = async (req, res) => {
     user.tokenExpires = undefined;
     await user.save();
 
-    res.status(200).json({success: true, data: 'Email verified successfully! You can now log in.' });
+const jwtToken = jwt.sign(
+      { id: user._id, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+
+    res.redirect(`learnback://verify-success?jwt=${jwtToken}`);
 
   } catch (error) {
     console.error(error);
