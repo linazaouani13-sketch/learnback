@@ -4,38 +4,35 @@ const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const sendEmail = require('../utils/sendemail');
 const { getVerificationEmailTemplate } = require('../utils/emailTemplates');
+const { registerSchema, loginSchema } = require('../validations/authValidator');
 
-//     Register a new user
+  // Register a new user
 //    POST /api/auth/register
-
 exports.registerUser = async (req, res) => {
   try {
-    const { name, email, password, role } = req.body;
-
-    //  check required fields
-    if (!name || !email || !password) {
-      return res.status(400).json({ success: false, error: 'Name, email and password are required' });
+    
+    const { error, value } = registerSchema.validate(req.body, { abortEarly: false });
+    if (error) {
+      const errors = error.details.map(err => ({
+        field: err.path.join('.'),
+        message: err.message
+      }));
+      return res.status(400).json({ success: false, errors });
     }
 
-    //  only @estin.dz is allowed
-    if (!email.endsWith('@estin.dz')) {
-      return res.status(400).json({  success: false, error: 'Only @estin.dz emails are allowed' });
-    }
+    const { name, email, password, role } = value;
 
-    // Check if user already exists
+   
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res.status(400).json({  success: false, error: 'User already exists' });
+      return res.status(400).json({ success: false, error: 'User already exists' });
     }
 
-    // Hash password
     const salt = await bcrypt.genSalt(10);
     const passwordHash = await bcrypt.hash(password, salt);
 
-    // Generate a random verification token
     const verificationToken = crypto.randomBytes(32).toString('hex');
 
-    // Create new user with verification token
     const newUser = new User({
       name,
       email,
@@ -45,34 +42,28 @@ exports.registerUser = async (req, res) => {
       tokenExpires: Date.now() + 24 * 60 * 60 * 1000  // 24 hours
     });
 
-    // Save to database
     await newUser.save();
 
-    // Build verification link and send email
     const verifyUrl = `${process.env.CLIENT_URL}/api/auth/verify-email?token=${verificationToken}`;
-
     await sendEmail(
       email,
       'Verify your LearnBack account',
       getVerificationEmailTemplate(name, verifyUrl, process.env.CLIENT_URL)
     );
 
-    // Respond (NO JWT — user must verify email first)
     res.status(201).json({
       success: true,
       data: 'Registration successful! Please check your email to verify your account.'
     });
-
   } catch (error) {
     console.error(error);
-    res.status(500).json({ 
-      success: false, 
+    res.status(500).json({
+      success: false,
       error: 'Registration failed',
-      message: error.message  });
+      message: error.message
+    });
   }
-
 };
-
 
 //     Verify email
 //    GET /api/auth/verify-email?token=xxx
@@ -85,7 +76,6 @@ exports.verifyEmail = async (req, res) => {
       return res.status(400).json({  success: false, error: 'Token is required' });
     }
 
-    // Find user with this token that hasn't expired
     const user = await User.findOne({
       verificationToken: token,
       tokenExpires: { $gt: Date.now() }
@@ -95,7 +85,6 @@ exports.verifyEmail = async (req, res) => {
       return res.status(400).json({  success: false, error: 'Invalid or expired token' });
     }
 
-    // Mark as verified and clear token
     user.verified = true;
     user.verificationToken = undefined;
     user.tokenExpires = undefined;
@@ -114,41 +103,40 @@ exports.verifyEmail = async (req, res) => {
 };
 
 
-//     Login user
-//    POST /api/auth/login
-
+//    Login user
+//   POST /api/auth/login
 exports.loginUser = async (req, res) => {
   try {
-    const { email, password } = req.body;
 
-    if (!email || !password) {
-      return res.status(400).json({  success: false, error: 'Email and password are required' });
+    const { error, value } = loginSchema.validate(req.body);
+    if (error) {
+      return res.status(400).json({ success: false, error: error.details[0].message });
     }
+    const { email, password } = value;
 
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(400).json({  success: false, error: 'Invalid email or password' });
+      return res.status(400).json({ success: false, error: 'Invalid email or password' });
     }
 
-    // Check if email is verified
+   
     if (!user.verified) {
-      return res.status(403).json({  success: false, error: 'Please verify your email before logging in' });
+      return res.status(403).json({ success: false, error: 'Please verify your email before logging in' });
     }
 
-    // Compare password
+   
     const isMatch = await bcrypt.compare(password, user.passwordHash);
     if (!isMatch) {
-      return res.status(401).json({  success: false, error: 'Invalid email or password' });
+      return res.status(401).json({ success: false, error: 'Invalid email or password' });
     }
 
-    // Generate token
+   
     const token = jwt.sign(
       { id: user._id, role: user.role },
       process.env.JWT_SECRET,
       { expiresIn: '7d' }
     );
 
-    // Send response
     res.status(200).json({
       success: true,
       data: {
@@ -159,16 +147,17 @@ exports.loginUser = async (req, res) => {
         token
       }
     });
-
   } catch (error) {
     console.error(error);
-    res.status(500).json({ 
-      success: false, 
+    res.status(500).json({
+      success: false,
       error: 'Login failed',
-      message: error.message  });
+      message: error.message
+    });
   }
-
 };
+
+
 
 // TODO: Password reset – "Forgot password" functionality.
 // TODO: Logout – Invalidate tokens or clear sessions.
