@@ -39,7 +39,8 @@ exports.registerUser = async (req, res) => {
       passwordHash,
       role: role || 'student',
       verificationToken,
-      tokenExpires: Date.now() + 24 * 60 * 60 * 1000  // 24 hours
+      tokenExpires: Date.now() + 24 * 60 * 60 * 1000,  // 24 hours
+      points: 10
     });
 
     await newUser.save();

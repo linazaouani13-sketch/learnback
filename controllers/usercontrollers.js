@@ -60,6 +60,10 @@ exports.putprofile = async (req, res) => {
             user.name = value.name;
         }
 
+        if (value.phoneNumber) {
+            user.phoneNumber = value.phoneNumber;
+        }
+
         if (value.profile) {
             // Merge the new profile fields into existing ones
             user.profile = {
@@ -147,6 +151,12 @@ exports.putprofile = async (req, res) => {
            })
              await userSkill.save();
     
+            // Award points for first skill
+            const skillCount = await UserSkill.countDocuments({ userId });
+            if (skillCount === 1) {
+                await User.findByIdAndUpdate(userId, { $inc: { points: 5 } });
+            }
+    
            res.status(201).json({success:true,data:userSkill})
     } catch (error) {
     console.error(error);
@@ -194,6 +204,32 @@ exports.getuserreviews = async (req,res)=>{
       error: 'Failed to fetch user reviews',
       message: error.message  });
   }
+}
 
 
+// GET /api/users/:userId/contact
+exports.getContactInfo = async (req, res) =>{
+    try {
+        const { userId } = req.params;
+        const user = await User.findById(userId).select('email phoneNumber');
+
+        if (!user) {
+            return res.status(404).json({ success: false, error: "User not found" });
+        }
+
+        res.status(200).json({
+            success: true,
+            data: {
+                email: user.email,
+                phoneNumber: user.phoneNumber || "Not provided"
+            }
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            success: false,
+            error: 'Failed to fetch contact info',
+            message: error.message
+        });
+    }
 }

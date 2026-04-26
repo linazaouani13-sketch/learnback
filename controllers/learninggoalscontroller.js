@@ -36,6 +36,12 @@ exports.addGoal = async (req,res)=>{
             skillId,
            })
              await learningGoal.save();
+
+           // Award points for first goal
+           const goalCount = await LearningGoal.countDocuments({ userId });
+           if (goalCount === 1) {
+               await User.findByIdAndUpdate(userId, { $inc: { points: 10 } });
+           }
     
            res.status(201).json({success:true,data:learningGoal})
            
