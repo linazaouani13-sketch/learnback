@@ -8,6 +8,8 @@ const matchSchema = new mongoose.Schema({
   status: { type: String, enum: ['pending', 'active', 'completed', 'cancelled'], default: 'pending' },
   matchApprovedByA: { type: Boolean, default: false },
   matchApprovedByB: { type: Boolean, default: false },
+  userASourceLink: { type: String, default: '' },
+  userBSourceLink: { type: String, default: '' },
   createdAt: { type: Date, default: Date.now },
   activatedAt: Date,
   completedAt: Date

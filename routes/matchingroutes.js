@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const {findMatch ,approvematch,getMyMatches,getRequests,reviewMatch,getMatchReview} = require('../controllers/matchingcontroller');
+const {findMatch ,approvematch,getMyMatches,getRequests,reviewMatch,getMatchReview, updateSourceLink} = require('../controllers/matchingcontroller');
 const {getRoadmap,submitStepQuiz,getMatchProgress} = require('../controllers/progresscontroller');
 const authMiddleware = require('../middlewares/authmiddleware');
 
@@ -15,5 +15,6 @@ router.get('/my-matches',authMiddleware,getMyMatches);// not tested
 router.get('/requests',authMiddleware,getRequests);// not tested
 router.post('/:matchId/review',authMiddleware,reviewMatch);// not tested
 router.get('/:matchId/review',authMiddleware,getMatchReview);// not tested
+router.put('/:matchId/source-link', authMiddleware, updateSourceLink);
 
 module.exports = router;

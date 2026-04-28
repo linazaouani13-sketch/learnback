@@ -280,3 +280,31 @@ exports.getMatchReview = async (req, res) => {
     });
   }
 }
+
+// PUT /api/match/:matchId/source-link
+exports.updateSourceLink = async (req, res) => {
+  try {
+    const { matchId } = req.params;
+    const { sourceLink } = req.body;
+    const currentUserId = req.user.id;
+
+    const match = await Match.findById(matchId);
+    if (!match) {
+      return res.status(404).json({ success: false, error: 'Match not found' });
+    }
+
+    if (match.userAId.toString() === currentUserId) {
+      match.userASourceLink = sourceLink;
+    } else if (match.userBId.toString() === currentUserId) {
+      match.userBSourceLink = sourceLink;
+    } else {
+      return res.status(403).json({ success: false, error: 'Unauthorized to update source link for this match' });
+    }
+
+    await match.save();
+    res.status(200).json({ success: true, data: match });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, error: 'Failed to update source link', message: error.message });
+  }
+};

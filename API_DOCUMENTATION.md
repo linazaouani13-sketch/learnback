@@ -15,7 +15,8 @@ This document provides exact JSON request and response structures for all LearnB
       "name": "Iliass",
       "email": "iliass@estin.dz",
       "password": "securepassword123",
-      "role": "student"
+      "role": "student",
+      "phoneNumber": "+213123456789"
     }
     ```
 *   **Success Response (201):**
@@ -81,6 +82,7 @@ This document provides exact JSON request and response structures for all LearnB
         "_id": "65f1a...",
         "name": "Iliass",
         "email": "iliass@estin.dz",
+        "phoneNumber": "+213...",
         "points": 500,
         "role": "student",
         "profile": { "bio": "Student", "avatar": "" },
@@ -95,6 +97,7 @@ This document provides exact JSON request and response structures for all LearnB
     ```json
     {
       "name": "Iliass NewName",
+      "phoneNumber": "+213987654321",
       "profile": { "bio": "Learner and Teacher" }
     }
     ```
@@ -170,6 +173,19 @@ This document provides exact JSON request and response structures for all LearnB
           "reviewerId": { "name": "Ayoub", "email": "..." }
         }
       ]
+    }
+    ```
+
+### Get User Contact Info
+*   **Method:** `GET /:userId/contact`
+*   **Success Response (200):**
+    ```json
+    {
+      "success": true,
+      "data": {
+        "email": "user@estin.dz",
+        "phoneNumber": "+213..."
+      }
     }
     ```
 
@@ -339,6 +355,26 @@ This document provides exact JSON request and response structures for all LearnB
     }
     ```
 
+### Update Match Source Link
+*   **Method:** `PUT /:matchId/source-link`
+*   **Request Body:**
+    ```json
+    {
+      "sourceLink": "https://drive.google.com/drive/folders/..."
+    }
+    ```
+*   **Success Response (200):**
+    ```json
+    {
+      "success": true,
+      "data": {
+        "_id": "...",
+        "userASourceLink": "...",
+        "userBSourceLink": "..."
+      }
+    }
+    ```
+
 ---
 
 ## 6. Professional Courses APIs
@@ -392,6 +428,18 @@ This document provides exact JSON request and response structures for all LearnB
 ## 7. Skill Verification APIs
 **Base URL:** `/api/tests` (Requires Auth)
 
+### Take Verification Test
+*   **Method:** `POST /:testId/take`
+*   **Request Body:** `{ "answers": ["...", "..."] }`
+*   **Success Response (200):**
+    ```json
+    {
+      "success": true,
+      "data": { "score": 85, "passed": true, "verification": "..." }
+    }
+    ```
+*   **Note:** User earns **50 points** on success and becomes "Verified" for the skill.
+
 ### Generate AI Skill Test
 *   **Method:** `POST /generate`
 *   **Request Body:**
@@ -414,18 +462,6 @@ This document provides exact JSON request and response structures for all LearnB
     { "success": true, "data": { "questions": [...] } }
     ```
 
-### Take Verification Test
-*   **Method:** `POST /:testId/take`
-*   **Request Body:** `{ "answers": ["...", "..."] }`
-*   **Success Response (200):**
-    ```json
-    {
-      "success": true,
-      "data": { "score": 85, "passed": true, "verification": "..." }
-    }
-    ```
-*   **Note:** User earns **50 points** on success and becomes "Verified" for the skill.
-
 ### Get My Verifications
 *   **Method:** `GET /verification`
 *   **Success Response (200):**
@@ -438,18 +474,18 @@ This document provides exact JSON request and response structures for all LearnB
 ## 8. Admin Control APIs
 **Base URL:** `/api/admin` (Requires Admin Token)
 
-### Get User Details
-*   **Method:** `GET /users/:userId`
-*   **Success Response (200):**
-    ```json
-    { "success": true, "data": { "_id": "...", "name": "...", "role": "..." } }
-    ```
-
 ### List All Users
 *   **Method:** `GET /users`
 *   **Success Response (200):**
     ```json
     { "success": true, "data": [ { "name": "Iliass", "role": "student" } ] }
+    ```
+
+### Get User Details
+*   **Method:** `GET /users/:userId`
+*   **Success Response (200):**
+    ```json
+    { "success": true, "data": { "_id": "...", "name": "...", "role": "..." } }
     ```
 
 ### Get User Skills
@@ -468,12 +504,31 @@ This document provides exact JSON request and response structures for all LearnB
 
 ### Get Match Details
 *   **Method:** `GET /matches/:matchId`
+*   **Success Response (200):**
+    ```json
+    { "success": true, "data": { "_id": "...", "status": "active" } }
+    ```
 
 ### List All Courses
 *   **Method:** `GET /courses`
+*   **Success Response (200):**
+    ```json
+    { "success": true, "data": [ { "title": "..." } ] }
+    ```
+
+### Get Course Details
+*   **Method:** `GET /courses/:courseId`
+*   **Success Response (200):**
+    ```json
+    { "success": true, "data": { "title": "..." } }
+    ```
 
 ### Get Skill Details
 *   **Method:** `GET /skills/:skillId`
+*   **Success Response (200):**
+    ```json
+    { "success": true, "data": { "name": "..." } }
+    ```
 
 ### Force Complete Match
 *   **Method:** `PUT /matches/:matchId/force-update`
