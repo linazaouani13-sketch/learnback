@@ -23,7 +23,8 @@ app.use('/api/match', require('./routes/matchingroutes'));
 app.use('/api/courses', require('./routes/courseroutes.js'));
 app.use('/api/admin', require('./routes/adminroutes'));
 
-
-app.listen(PORT, () => {
-  console.log(`Server is running  on port ${PORT}`);
-});
+if (process.env.NODE_ENV !== 'production') {
+  const PORT = process.env.PORT || 5000;
+  app.listen(PORT, () => console.log(`Local server on port ${PORT}`));
+}
+module.exports = app;
